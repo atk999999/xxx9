@@ -1,0 +1,91 @@
+{
+  "entities": {
+    "Fusion": {
+      "title": "Fusion Result",
+      "description": "A character created by fusing multiple base characters.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "dna_analysis": { "type": "string" },
+        "dna_components": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "race": { "type": "string" },
+              "percentage": { "type": "number" },
+              "color": { "type": "string" }
+            }
+          }
+        },
+        "fusion_logic": { "type": "string" },
+        "quote": { "type": "string" },
+        "powerLevel": { "type": "number" },
+        "rank": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "visual_prompt": { "type": "string" },
+        "baseCharacters": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string" },
+              "era": { "type": "string" },
+              "state": { "type": "string" }
+            }
+          }
+        },
+        "userId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "zombie_compatibility": { "type": "number" },
+        "zombie_multiplier": { "type": "number" }
+      },
+      "required": ["id", "name", "powerLevel", "userId", "createdAt"]
+    },
+    "Battle": {
+      "title": "Battle History Item",
+      "description": "A record of a battle between two fusions.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "p1": { "$ref": "Fusion" },
+        "p2": { "$ref": "Fusion" },
+        "winner": { "type": "integer" },
+        "date": { "type": "string", "format": "date-time" },
+        "log": { "type": "array", "items": { "type": "string" } },
+        "choice": { "type": "string", "enum": ["kill", "spare"] },
+        "killQuote": { "type": "string" },
+        "spareQuote": { "type": "string" },
+        "winnerQuote": { "type": "string" },
+        "loserQuote": { "type": "string" },
+        "introQuotes": {
+          "type": "object",
+          "properties": {
+            "p1": { "type": "string" },
+            "p2": { "type": "string" }
+          }
+        },
+        "taunts": {
+          "type": "object",
+          "properties": {
+            "p1": { "type": "array", "items": { "type": "string" } },
+            "p2": { "type": "array", "items": { "type": "string" } }
+          }
+        }
+      },
+      "required": ["id", "p1", "p2", "winner", "date"]
+    }
+  },
+  "firestore": {
+    "/fusions/{fusionId}": {
+      "schema": "Fusion",
+      "description": "Global collection of all fusions created by users."
+    },
+    "/battles/{battleId}": {
+      "schema": "Battle",
+      "description": "Global history of all battles."
+    }
+  }
+}

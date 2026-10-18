@@ -1,0 +1,8 @@
+{
+  "name": "Remix Remix Remix KK88",
+  "description": "Dragon Ball Fusion Lab & Xuyên Thế Giới (Thiên Đạo Simulator) - Dung hợp nhân vật và phiêu lưu đa vũ trụ.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

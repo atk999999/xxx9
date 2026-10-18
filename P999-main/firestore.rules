@@ -1,0 +1,90 @@
+// ===============================================================
+// Assumed Data Model
+// ===============================================================
+//
+// Collection: fusions
+// Document ID: auto-generated or fusionId
+// Fields:
+//   - id: string (required) - unique ID
+//   - name: string (required) - fusion name
+//   - description: string (optional) - description
+//   - powerLevel: number (required) - power level
+//   - rank: string (optional) - rank (S/A/B/C/D/EX)
+//   - imageUrl: string (optional) - URL to the character image
+//   - userId: string (required) - ID of the creator
+//   - createdAt: timestamp (required) - creation time
+//   - baseCharacters: list (optional) - list of base characters
+//
+// Collection: battles
+// Document ID: auto-generated or battleId
+// Fields:
+//   - id: string (required) - unique ID
+//   - p1: map (required) - player 1 fusion data
+//   - p2: map (required) - player 2 fusion data
+//   - winner: number (required) - index of the winner (0 or 1)
+//   - date: timestamp (required) - battle date
+//   - log: list (optional) - battle log entries
+//
+// ===============================================================
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isValidFusion(data) {
+      return data.keys().hasAll(['id', 'name', 'powerLevel', 'userId', 'createdAt']) &&
+             data.name is string && data.name.size() > 0 && data.name.size() < 100 &&
+             data.powerLevel is number &&
+             data.userId is string &&
+             data.createdAt is string; // Using string ISO format as per current app logic
+    }
+
+    function isValidBattle(data) {
+      return data.keys().hasAll(['id', 'p1', 'p2', 'winner', 'date']) &&
+             data.winner is number &&
+             (data.winner == 0 || data.winner == 1);
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /fusions/{fusionId} {
+      // Allow anyone to read fusions for the global library
+      allow read: if true;
+      
+      // Allow authenticated users to create fusions
+      allow create: if isAuthenticated() && 
+                      request.resource.data.userId == request.auth.uid &&
+                      isValidFusion(request.resource.data);
+      
+      // Allow owners to delete their fusions
+      allow delete: if isOwner(resource.data.userId);
+      
+      // No updates allowed for now to maintain integrity
+      allow update: if false;
+    }
+
+    match /battles/{battleId} {
+      // Allow anyone to read battle history
+      allow read: if true;
+      
+      // Allow authenticated users to record battles
+      allow create: if isAuthenticated() && isValidBattle(request.resource.data);
+      
+      allow update, delete: if false;
+    }
+  }
+}
